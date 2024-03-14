@@ -7,11 +7,11 @@ import org.example.springimplementationboard.Board.BoardEntity;
 public record CommentEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        String id,
+        Long id,
         String body,
 //        @ManyToOne(fetch = FetchType.LAZY)
         @ManyToOne
-        @JoinColumn(name = "id")
+        @JoinColumn(name = "board_id", referencedColumnName = "id")
         BoardEntity board
 ) {
 }

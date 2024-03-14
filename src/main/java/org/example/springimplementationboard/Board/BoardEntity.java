@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 public record BoardEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        String id,
+        Long id,
         String title,
         String body
 ) {
