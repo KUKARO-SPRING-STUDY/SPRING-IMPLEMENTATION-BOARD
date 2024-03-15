@@ -5,7 +5,6 @@ import org.example.springimplementationboard.comment.CommentDto;
 import org.example.springimplementationboard.common.exception.DataNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class BoardService {
         return new BoardDto(boardEntity.getId(),
                 boardEntity.getTitle(),
                 boardEntity.getBody(),
-                getCommentsByBoardEntity(boardEntity));
+                getCommentsByBoardEntity(boardEntity, true));
     }
 
     /**
@@ -35,7 +34,7 @@ public class BoardService {
                 .map(boardEntity -> new BoardDto(boardEntity.getId(),
                         boardEntity.getTitle(),
                         getBody(boardEntity, hasBody),
-                        getCommentsByBoardEntity(boardEntity)))
+                        getCommentsByBoardEntity(boardEntity, hasBody)))
                 .toList();
     }
 
@@ -47,7 +46,7 @@ public class BoardService {
         return new BoardDto(boardEntity.getId(),
                 boardEntity.getTitle(),
                 boardEntity.getBody(),
-                getCommentsByBoardEntity(boardEntity));
+                getCommentsByBoardEntity(boardEntity, true));
     }
 
     public BoardDto updateBoard(BoardDto dto) {
@@ -62,29 +61,7 @@ public class BoardService {
         return new BoardDto(updatedBoard.getId(),
                 updatedBoard.getTitle(),
                 updatedBoard.getBody(),
-                getCommentsByBoardEntity(updatedBoard));
-    }
-
-    private String getBody(BoardEntity boardEntity, boolean hasBody) {
-        if (hasBody) {
-            return boardEntity.getBody();
-        }
-        return null;
-    }
-
-
-    private List<CommentDto> getCommentsByBoardEntity(BoardEntity boardEntity) {
-        return boardEntity.getComments()
-                .stream()
-                .map(commentEntity -> new CommentDto(commentEntity.getId(), null, commentEntity.getBody()))
-                .toList();
-    }
-
-    private BoardEntity makeBoardEntityByExistBoardAndBoardDto(BoardDto dto, BoardEntity entity) {
-        return new BoardEntity(entity.getId(),
-                dto.title() == null ? entity.getTitle() : dto.title(),
-                dto.body() == null ? entity.getBody() : dto.body(),
-                entity.isDeleted());
+                getCommentsByBoardEntity(updatedBoard, true));
     }
 
     public void deleteBoard(Long id) {
@@ -96,5 +73,31 @@ public class BoardService {
         }
         BoardEntity deletedBoard = new BoardEntity(existBoard.getId(), existBoard.getTitle(), existBoard.getBody(), true);
         boardRepository.save(deletedBoard);
+    }
+
+    private String getBody(BoardEntity board, boolean hasBody) {
+        if (hasBody) {
+            return board.getBody();
+        }
+        return null;
+    }
+
+
+    private List<CommentDto> getCommentsByBoardEntity(BoardEntity board, boolean hasBody) {
+        if (hasBody) {
+            return board.getComments()
+                    .stream()
+                    .filter(commentEntity -> !commentEntity.isDeleted())
+                    .map(commentEntity -> new CommentDto(commentEntity.getId(), null, commentEntity.getBody()))
+                    .toList();
+        }
+        return null;
+    }
+
+    private BoardEntity makeBoardEntityByExistBoardAndBoardDto(BoardDto dto, BoardEntity existBoard) {
+        return new BoardEntity(existBoard.getId(),
+                dto.title() == null ? existBoard.getTitle() : dto.title(),
+                dto.body() == null ? existBoard.getBody() : dto.body(),
+                existBoard.isDeleted());
     }
 }
