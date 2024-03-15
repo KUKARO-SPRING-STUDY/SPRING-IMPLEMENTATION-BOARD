@@ -4,13 +4,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.*;
 
 @Entity
-public record BoardEntity(
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        Long id,
-        String title,
-        String body
-) {
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+public class BoardEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+    private String body;
 }
