@@ -27,6 +27,8 @@ public class BoardEntity {
 
     /**
      * mappedBy를 정하지 않으면 중계테이블을 생성함
+     * OneToMany의 기본 FetchType : LAZY
+     * ManyToOne의 기본 FetchType : EAGER
      */
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @SQLRestriction("is_deleted=false")
