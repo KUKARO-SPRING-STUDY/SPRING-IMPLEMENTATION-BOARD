@@ -11,8 +11,8 @@ import java.util.List;
 public class BoardService {
     private final BoardRepository boardRepository;
 
-    public BoardDto createBoard(BoardDto boardDto) {
-        BoardEntity boardEntity = new BoardEntity(null, boardDto.title(), boardDto.body());
+    public BoardDto createBoard(BoardDto dto) {
+        BoardEntity boardEntity = new BoardEntity(null, dto.title(), dto.body());
         BoardEntity newEntity = boardRepository.save(boardEntity);
         return new BoardDto(newEntity.getId(), boardEntity.getTitle(), boardEntity.getBody());
     }
@@ -25,7 +25,28 @@ public class BoardService {
     }
 
     public BoardDto getBoardById(Long id) {
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(() -> new DataNotFoundException(id, "Board not found"));
+        BoardEntity boardEntity = boardRepository
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException(id, "Board not found"));
         return new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody());
+    }
+
+    public BoardDto updateBoard(BoardDto dto) {
+        BoardEntity existBoard = boardRepository
+                .findById(dto.id())
+                .orElseThrow(() -> new DataNotFoundException(dto.id(), "Board not found"));
+        if (existBoard.isDeleted()) {
+            throw new DataNotFoundException(dto.id(), "Board is deleted");
+        }
+
+        BoardEntity updatedBoard = boardRepository.save(makeBoardEntityByExistBoardAndBoardDto(dto, existBoard));
+        return new BoardDto(updatedBoard.getId(), updatedBoard.getTitle(), updatedBoard.getBody());
+    }
+
+    private BoardEntity makeBoardEntityByExistBoardAndBoardDto(BoardDto dto, BoardEntity entity) {
+        return new BoardEntity(entity.getId(),
+                dto.title() == null ? entity.getTitle() : dto.title(),
+                dto.body() == null ? entity.getBody() : dto.body(),
+                entity.isDeleted());
     }
 }

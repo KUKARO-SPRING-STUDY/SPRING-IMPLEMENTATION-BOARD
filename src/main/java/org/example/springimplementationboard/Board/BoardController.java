@@ -28,4 +28,10 @@ public class BoardController {
         BoardDto board = boardService.getBoardById(id);
         return new BoardResponse(List.of(board));
     }
+
+    @PatchMapping("")
+    public BoardResponse updateBoard(@RequestBody BoardRequest boardRequest) {
+        BoardDto board = boardService.updateBoard(new BoardDto(boardRequest.id(), boardRequest.title(), boardRequest.body()));
+        return new BoardResponse(List.of(board));
+    }
 }
