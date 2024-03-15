@@ -1,9 +1,11 @@
 package org.example.springimplementationboard.Board;
 
 import lombok.RequiredArgsConstructor;
+import org.example.springimplementationboard.comment.CommentDto;
 import org.example.springimplementationboard.common.exception.DataNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,15 +17,25 @@ public class BoardService {
     public BoardDto createBoard(BoardDto dto) {
         BoardEntity boardEntity = new BoardEntity(null, dto.title(), dto.body());
         boardRepository.save(boardEntity);
-        return new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody());
+        return new BoardDto(boardEntity.getId(),
+                boardEntity.getTitle(),
+                boardEntity.getBody(),
+                getCommentsByBoardEntity(boardEntity));
     }
 
-    public List<BoardDto> getBoards(Pageable pageable) {
+    /**
+     * pageable대신 직접 넣어서 내부에서 Pageable초기화하는 방법도 가능
+     */
+    public List<BoardDto> getBoards(Pageable pageable, boolean hasBody) {
         List<BoardEntity> boardEntities = boardRepository.findAll(pageable)
-                .stream().toList();
+                .stream()
+                .toList();
         return boardEntities.stream()
                 .filter(board -> !board.isDeleted())
-                .map(boardEntity -> new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody()))
+                .map(boardEntity -> new BoardDto(boardEntity.getId(),
+                        boardEntity.getTitle(),
+                        getBody(boardEntity, hasBody),
+                        getCommentsByBoardEntity(boardEntity)))
                 .toList();
     }
 
@@ -32,7 +44,10 @@ public class BoardService {
                 .findById(id)
                 .filter(board -> !board.isDeleted())
                 .orElseThrow(() -> new DataNotFoundException(id, "Board not found"));
-        return new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody());
+        return new BoardDto(boardEntity.getId(),
+                boardEntity.getTitle(),
+                boardEntity.getBody(),
+                getCommentsByBoardEntity(boardEntity));
     }
 
     public BoardDto updateBoard(BoardDto dto) {
@@ -44,7 +59,25 @@ public class BoardService {
         }
 
         BoardEntity updatedBoard = boardRepository.save(makeBoardEntityByExistBoardAndBoardDto(dto, existBoard));
-        return new BoardDto(updatedBoard.getId(), updatedBoard.getTitle(), updatedBoard.getBody());
+        return new BoardDto(updatedBoard.getId(),
+                updatedBoard.getTitle(),
+                updatedBoard.getBody(),
+                getCommentsByBoardEntity(updatedBoard));
+    }
+
+    private String getBody(BoardEntity boardEntity, boolean hasBody) {
+        if (hasBody) {
+            return boardEntity.getBody();
+        }
+        return null;
+    }
+
+
+    private List<CommentDto> getCommentsByBoardEntity(BoardEntity boardEntity) {
+        return boardEntity.getComments()
+                .stream()
+                .map(commentEntity -> new CommentDto(commentEntity.getId(), null, commentEntity.getBody()))
+                .toList();
     }
 
     private BoardEntity makeBoardEntityByExistBoardAndBoardDto(BoardDto dto, BoardEntity entity) {

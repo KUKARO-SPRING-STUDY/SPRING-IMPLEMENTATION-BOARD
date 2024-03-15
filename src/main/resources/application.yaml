@@ -19,3 +19,5 @@ spring:
       # ddl-auto? ??? ?????
       ddl-auto: create
     open-in-view: false
+  jackson:
+    default-property-inclusion: non_null
