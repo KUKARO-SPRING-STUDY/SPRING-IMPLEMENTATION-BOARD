@@ -34,4 +34,10 @@ public class BoardController {
         BoardDto board = boardService.updateBoard(new BoardDto(boardRequest.id(), boardRequest.title(), boardRequest.body()));
         return new BoardResponse(List.of(board));
     }
+
+    @DeleteMapping("/{id}")
+    public BoardResponse deleteBoard(@PathVariable Long id) {
+        boardService.deleteBoard(id);
+        return new BoardResponse(List.of());
+    }
 }
