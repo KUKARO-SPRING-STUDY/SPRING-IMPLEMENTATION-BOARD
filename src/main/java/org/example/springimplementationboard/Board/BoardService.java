@@ -2,6 +2,7 @@ package org.example.springimplementationboard.Board;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springimplementationboard.common.exception.DataNotFoundException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,9 @@ public class BoardService {
         return new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody());
     }
 
-    public List<BoardDto> getBoards() {
-        List<BoardEntity> boardEntities = boardRepository.findAll();
+    public List<BoardDto> getBoards(Pageable pageable) {
+        List<BoardEntity> boardEntities = boardRepository.findAll(pageable)
+                .stream().toList();
         return boardEntities.stream()
                 .filter(board -> !board.isDeleted())
                 .map(boardEntity -> new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody()))

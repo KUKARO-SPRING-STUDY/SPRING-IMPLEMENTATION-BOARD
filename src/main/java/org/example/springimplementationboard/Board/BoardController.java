@@ -1,6 +1,7 @@
 package org.example.springimplementationboard.Board;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,8 @@ public class BoardController {
     }
 
     @GetMapping("")
-    public BoardResponse getBoards() {
-        List<BoardDto> boards = boardService.getBoards();
+    public BoardResponse getBoards(Pageable pageable) {
+        List<BoardDto> boards = boardService.getBoards(pageable);
         return new BoardResponse(boards);
     }
 
