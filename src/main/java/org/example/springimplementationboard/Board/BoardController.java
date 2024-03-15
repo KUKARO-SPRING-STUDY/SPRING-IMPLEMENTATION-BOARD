@@ -12,12 +12,20 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping("")
-    public BoardDto createBoard(@RequestBody BoardRequest boardRequest) {
-        return boardService.createBoard(new BoardDto(null, boardRequest.title(), boardRequest.body()));
+    public BoardResponse createBoard(@RequestBody BoardRequest boardRequest) {
+        BoardDto board = boardService.createBoard(new BoardDto(null, boardRequest.title(), boardRequest.body()));
+        return new BoardResponse(List.of(board));
     }
 
     @GetMapping("")
-    public List<BoardDto> getBoards() {
-        return boardService.getBoards();
+    public BoardResponse getBoards() {
+        List<BoardDto> boards = boardService.getBoards();
+        return new BoardResponse(boards);
+    }
+
+    @GetMapping("/{id}")
+    public BoardResponse getBoardsById(@PathVariable Long id) {
+        BoardDto board = boardService.getBoardById(id);
+        return new BoardResponse(List.of(board));
     }
 }

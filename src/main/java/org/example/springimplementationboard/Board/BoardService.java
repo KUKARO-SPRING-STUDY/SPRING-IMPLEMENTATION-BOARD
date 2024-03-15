@@ -1,6 +1,7 @@
 package org.example.springimplementationboard.Board;
 
 import lombok.RequiredArgsConstructor;
+import org.example.springimplementationboard.common.exception.DataNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,5 +22,10 @@ public class BoardService {
         return boardEntities.stream()
                 .map(boardEntity -> new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody()))
                 .toList();
+    }
+
+    public BoardDto getBoardById(Long id) {
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(() -> new DataNotFoundException(id, "Board not found"));
+        return new BoardDto(boardEntity.getId(), boardEntity.getTitle(), boardEntity.getBody());
     }
 }
