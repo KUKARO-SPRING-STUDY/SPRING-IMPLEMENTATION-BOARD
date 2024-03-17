@@ -19,9 +19,25 @@ public class BoardController {
     }
 
     @GetMapping("")
-    public BoardResponse getBoards(Pageable pageable, @RequestParam(defaultValue = "false") boolean body) {
-        List<BoardDto> boards = boardService.getBoards(pageable, body);
+    public BoardResponse getBoards(
+            Pageable pageable,
+            @RequestParam(defaultValue = "false") boolean body,
+            Long cursor
+    ) {
+        if (cursor != null) {
+            return getBoardsByCursor(cursor, pageable,body);
+        }
+        return getBoardsByOffset(pageable, body);
+    }
+
+    private BoardResponse getBoardsByOffset(Pageable pageable, boolean body) {
+        List<BoardDto> boards = boardService.getBoardsByOffset(pageable, body);
         return new BoardResponse(boards);
+    }
+
+    private BoardResponse getBoardsByCursor(Long cursor, Pageable pageable, boolean body) {
+        BoardsDto boards = boardService.getBoardsByCursor(cursor, pageable.getPageSize(), pageable.getSort(), body);
+        return BoardResponse.of(boards);
     }
 
     @GetMapping("/{id}")
