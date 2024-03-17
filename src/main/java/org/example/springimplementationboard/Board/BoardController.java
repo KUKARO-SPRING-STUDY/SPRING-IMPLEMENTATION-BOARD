@@ -34,7 +34,7 @@ public class BoardController {
 
     private Pageable refinePageable(Pageable pageable) {
         if (pageable.getSort().isEmpty()) {
-            pageable = PageRequest.of(pageable.getPageNumber(),
+            return PageRequest.of(pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Order.desc("id")));
         }
