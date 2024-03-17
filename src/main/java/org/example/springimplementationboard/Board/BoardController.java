@@ -1,7 +1,9 @@
 package org.example.springimplementationboard.Board;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,9 +27,18 @@ public class BoardController {
             Long cursor
     ) {
         if (cursor != null) {
-            return getBoardsByCursor(cursor, pageable,body);
+            return getBoardsByCursor(cursor, refinePageable(pageable), body);
         }
-        return getBoardsByOffset(pageable, body);
+        return getBoardsByOffset(refinePageable(pageable), body);
+    }
+
+    private Pageable refinePageable(Pageable pageable) {
+        if (pageable.getSort().isEmpty()) {
+            pageable = PageRequest.of(pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Order.desc("id")));
+        }
+        return pageable;
     }
 
     private BoardResponse getBoardsByOffset(Pageable pageable, boolean body) {
