@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.springimplementationboard.comment.CommentDto;
 import org.example.springimplementationboard.common.exception.DataNotFoundException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,21 +28,21 @@ public class BoardService {
      * pageable대신 직접 넣어서 내부에서 Pageable초기화하는 방법도 가능
      */
     public List<BoardDto> getBoardsByOffset(Pageable pageable, boolean hasBody) {
-        List<BoardEntity> boardEntities = boardRepository.findAll(pageable)
-                .stream()
-                .toList();
-        return boardEntities.stream()
+        Page<BoardEntity> pageBoardEntities = boardRepository.findAll(pageable);
+        List<BoardDto> boards = pageBoardEntities
                 .filter(board -> !board.isDeleted())
                 .map(boardEntity -> new BoardDto(boardEntity.getId(),
                         boardEntity.getTitle(),
                         getBody(boardEntity, hasBody),
                         getCommentsByBoardEntity(boardEntity, hasBody)))
                 .toList();
+        log.info("page boards: {}", pageBoardEntities);
+        return boards;
     }
 
     public BoardsDto getBoardsByCursor(Long cursor, int size, Sort sort, boolean body) {
         Pageable pageable = PageRequest.of(0, size, sort);
-        Slice<BoardEntity> sliceBoardEntities = boardRepository.findAllByIdLessThanOrderByIdDesc(cursor, pageable);
+        Slice<BoardEntity> sliceBoardEntities = boardRepository.findAllByIdLessThanOrderById(cursor, pageable);
         List<BoardDto> boards = sliceBoardEntities
                 .stream()
                 .filter(board -> !board.isDeleted())
