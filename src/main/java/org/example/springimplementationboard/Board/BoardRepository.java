@@ -17,5 +17,5 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     @Query("SELECT b FROM BoardEntity b LEFT JOIN FETCH b.comments")
     Page<BoardEntity> findAll(Pageable pageable);
 
-    Slice<BoardEntity> findAllByIdLessThanOrderById(@Param("id") Long id, Pageable pageable);
+    Slice<BoardEntity> findAllByIdLessThan(@Param("id") Long id, Pageable pageable);
 }

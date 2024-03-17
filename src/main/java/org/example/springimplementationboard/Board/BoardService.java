@@ -42,7 +42,7 @@ public class BoardService {
 
     public BoardsDto getBoardsByCursor(Long cursor, int size, Sort sort, boolean body) {
         Pageable pageable = PageRequest.of(0, size, sort);
-        Slice<BoardEntity> sliceBoardEntities = boardRepository.findAllByIdLessThanOrderById(cursor, pageable);
+        Slice<BoardEntity> sliceBoardEntities = boardRepository.findAllByIdLessThan(cursor, pageable);
         List<BoardDto> boards = sliceBoardEntities
                 .stream()
                 .filter(board -> !board.isDeleted())
