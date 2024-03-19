@@ -11,10 +11,10 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 
-    @Query("SELECT b FROM BoardEntity b LEFT JOIN FETCH b.comments WHERE b.id = :id")
+    @Query("SELECT b FROM BoardEntity b LEFT JOIN FETCH b.comments WHERE b.id = :id and b.isDeleted = false")
     Optional<BoardEntity> findById(@Param("id") Long id);
 
-    @Query("SELECT b FROM BoardEntity b LEFT JOIN FETCH b.comments")
+    @Query("SELECT b FROM BoardEntity b LEFT JOIN FETCH b.comments where b.isDeleted = false")
     Page<BoardEntity> findAll(Pageable pageable);
 
     Slice<BoardEntity> findAllByIdLessThan(@Param("id") Long id, Pageable pageable);
